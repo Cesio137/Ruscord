@@ -1,5 +1,5 @@
+use crate::{Context, Error};
 use poise::CreateReply;
-use crate::commands::{Context, Error};
 
 #[poise::command(slash_command, prefix_command)]
 ///Replies with pong 🏓

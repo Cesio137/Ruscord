@@ -1,9 +1,9 @@
-use std::env;
 use dotenv::dotenv;
+use std::env;
 
 pub struct FEnvConfig {
     pub bot_token: String,
-    pub webhook_logs_url: String
+    pub webhook_logs_url: String,
 }
 
 impl FEnvConfig {
@@ -14,7 +14,7 @@ impl FEnvConfig {
         println!("✔ Env vars loaded successfully!");
         return Self {
             bot_token: token,
-            webhook_logs_url: webhook
+            webhook_logs_url: webhook,
         };
     }
 }

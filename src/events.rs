@@ -1,20 +1,20 @@
 use serenity::all::{
-    Context, 
-    EventHandler, 
-    Message
+    Context,
+    EventHandler as SerenityEventHandler,
+    Message,
 };
 use serenity::async_trait;
 use songbird::events::{
-    Event, 
-    EventContext, 
-    EventHandler as VoiceEventHandler
+    Event,
+    EventContext,
+    EventHandler as VoiceEventHandler,
 };
 
 pub struct Handler;
 pub struct TrackErrorNotifier;
 
 #[async_trait]
-impl EventHandler for Handler {
+impl SerenityEventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         if msg.content == "!verdades" {
             if let Err(why) = msg.channel_id.say(&ctx.http, "Daniel é muito guei!").await {

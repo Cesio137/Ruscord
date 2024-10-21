@@ -1,10 +1,11 @@
-//use poise::{serenity_prelude as serenity};
+use crate::events::TrackErrorNotifier;
+use crate::{Context, Error, HttpKey};
 use poise::CreateReply;
-use songbird::input::YoutubeDl;
-use songbird::TrackEvent;
+use songbird::{
+    input::YoutubeDl,
+    TrackEvent,
+};
 use url::Url;
-use crate::commands::{Context, Error, HttpKey};
-use crate::discord::events::TrackErrorNotifier;
 
 #[poise::command(slash_command, subcommands("add", "pause", "resume", "skip", "stop", "queue"))]
 ///Commands to control your podcasts and OST queue!
@@ -27,7 +28,7 @@ async fn add(ctx: Context<'_>, #[description = "Enter a name or url."] search: S
                 ..Default::default()
             }).await?;
             return Ok(());
-        },
+        }
     };
 
     if ctx.cache().guild(guild_id).is_none() {
@@ -38,7 +39,7 @@ async fn add(ctx: Context<'_>, #[description = "Enter a name or url."] search: S
         return Ok(());
     }
     let guild = ctx.cache().guild(guild_id).unwrap().clone();
-    
+
     let voice_states = match guild.voice_states.get(&ctx.author().id) {
         Some(voice_states) => voice_states,
         None => {
@@ -49,7 +50,7 @@ async fn add(ctx: Context<'_>, #[description = "Enter a name or url."] search: S
             return Ok(());
         }
     };
-    
+
     let voice = match voice_states.channel_id {
         Some(voice) => voice,
         None => {
@@ -81,12 +82,12 @@ async fn add(ctx: Context<'_>, #[description = "Enter a name or url."] search: S
         }).await?;
         return Ok(());
     }
-    
+
 
     let is_url = Url::parse(search.as_str()).is_ok();
     let http_client = {
         let data = ctx.serenity_context().data.read().await;
-        let client = match data.get::<HttpKey>() { 
+        let client = match data.get::<HttpKey>() {
             Some(key) => key.clone(),
             None => {
                 ctx.send(CreateReply {
@@ -118,8 +119,8 @@ async fn add(ctx: Context<'_>, #[description = "Enter a name or url."] search: S
         YoutubeDl::new_search(http_client, search)
     };
     handler.play_input(src.clone().into());
-    
-    
+
+
     ctx.send(CreateReply {
         content: Some("Pong!".to_owned()),
         ..Default::default()
