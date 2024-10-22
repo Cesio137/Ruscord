@@ -9,6 +9,7 @@ use songbird::events::{
     EventContext,
     EventHandler as VoiceEventHandler,
 };
+use tracing::error;
 
 pub struct Handler;
 pub struct TrackErrorNotifier;
@@ -18,7 +19,7 @@ impl SerenityEventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         if msg.content == "!verdades" {
             if let Err(why) = msg.channel_id.say(&ctx.http, "Daniel é muito guei!").await {
-                println!("Error sending message: {why:?}");
+                error!("Error sending message: {:?}", why);
             }
         }
     }
@@ -29,11 +30,10 @@ impl VoiceEventHandler for TrackErrorNotifier {
     async fn act(&self, ctx: &EventContext<'_>) -> Option<Event> {
         if let EventContext::Track(track_list) = ctx {
             for (state, handle) in *track_list {
-                println!(
-                    "Track {:?} encountered an error: {:?}",
+                error!("Track {:?} encountered an error: {:?}",
                     handle.uuid(),
                     state.playing
-                );
+                )
             }
         }
 

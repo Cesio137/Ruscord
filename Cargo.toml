@@ -1,12 +1,12 @@
 [package]
-name = "Bangboo"
+name = "discord-rs"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 serenity = "0.12.2"
 tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
-dotenv = "0.15.0"
+dotenvy = "0.15.7"
 poise = "0.6.1"
 songbird = { version= "0.4.3", features = ["builtin-queue"] }
 symphonia = { version= "0.5.4", features = ["aac", "mp3", "isomp4", "alac"] }

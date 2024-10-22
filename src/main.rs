@@ -1,8 +1,8 @@
-mod settings;
-mod commands;
+mod env;
+mod cmd;
 mod events;
 
-use crate::commands::load_commands;
+use crate::cmd::load_commands;
 use events::Handler;
 use reqwest::Client as HttpClient;
 use serenity::prelude::*;
@@ -18,10 +18,7 @@ impl TypeMapKey for HttpKey {
 }
 
 fn get_intents() -> GatewayIntents {
-    GatewayIntents::MESSAGE_CONTENT
-        | GatewayIntents::GUILD_MEMBERS
-        | GatewayIntents::GUILD_PRESENCES
-        | GatewayIntents::GUILD_VOICE_STATES
+    GatewayIntents::all()
 }
 
 async fn build_framework() -> poise::Framework<Data, Error> {
@@ -32,21 +29,21 @@ async fn build_framework() -> poise::Framework<Data, Error> {
         })
         .setup(|ctx, _ready, framework| {
             Box::pin(async move {
-                info!("Refreshing commands!");
-                // Delete old commands
+                info!("Refreshing cmd!");
+                // Delete old cmd
                 let result = ctx.http.get_global_commands().await;
                 if let Ok(commands) = result {
                     for command in commands.iter() {
                         ctx.http.delete_global_command(command.id).await.unwrap();
                     }
                 }
-                // Registering/Updating new commands
+                // Registering/Updating new cmd
                 for command in framework.options().commands.iter() {
                     info!("(/) {} command loaded!", command.name);
                 }
                 let result = poise::builtins::register_globally(ctx, &framework.options().commands).await;
                 if let Err(why) = result {
-                    warn!("Error registering global commands: {:?}", why)
+                    warn!("Error registering global cmd: {:?}", why)
                 }
                 info!("➝ Online as {}", _ready.user.name);
                 Ok(Data {})
@@ -78,7 +75,7 @@ async fn main() {
         .with_file(true)
         .with_line_number(true)
         .init();
-    let envschema = settings::FEnvConfig::validate_schema();
+    let envschema = env::validate_schema();
     let _ = bootstrap(&envschema.bot_token, get_intents()).await;
 }
 

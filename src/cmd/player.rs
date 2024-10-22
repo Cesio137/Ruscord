@@ -1,6 +1,7 @@
 use crate::events::TrackErrorNotifier;
 use crate::{Context, Error, HttpKey};
 use poise::CreateReply;
+use serenity::all::GuildId;
 use songbird::{
     input::YoutubeDl,
     TrackEvent,
@@ -11,7 +12,7 @@ use url::Url;
 ///Commands to control your podcasts and OST queue!
 pub async fn player(ctx: Context<'_>) -> Result<(), Error> {
     ctx.send(CreateReply {
-        content: Some("Pong!".to_owned()),
+        content: Some("Use `/player add, pause, resume, skip, stop or queue` to manage songs.".to_owned()),
         ..Default::default()
     }).await?;
     Ok(())
@@ -120,9 +121,8 @@ async fn add(ctx: Context<'_>, #[description = "Enter a name or url."] search: S
     };
     handler.play_input(src.clone().into());
 
-
     ctx.send(CreateReply {
-        content: Some("Pong!".to_owned()),
+        content: Some("Playing!".to_owned()),
         ..Default::default()
     }).await?;
     Ok(())
@@ -131,8 +131,55 @@ async fn add(ctx: Context<'_>, #[description = "Enter a name or url."] search: S
 #[poise::command(slash_command, prefix_command)]
 ///Pause the current track!
 pub async fn pause(ctx: Context<'_>) -> Result<(), Error> {
+    let guild_id: GuildId = match ctx.guild_id() {
+        Some(id) => id,
+        None => {
+            ctx.send(CreateReply {
+                content: Some("You are not connected to a guild!".to_owned()),
+                ..Default::default()
+            }).await?;
+            return Ok(());
+        }
+    };
+
+    let player = match songbird::get(ctx.serenity_context()).await {
+        Some(player) => player,
+        None => {
+            ctx.send(CreateReply {
+                content: Some("Can not initialize player!".to_owned()),
+                ..Default::default()
+            }).await?;
+            return Ok(());
+        }
+    };
+
+    let handler_lock = match player.get(guild_id) {
+        Some(handler) => handler,
+        None => {
+            ctx.send(CreateReply {
+                content: Some("You are not in a voice channel".to_owned()),
+                ..Default::default()
+            }).await?;
+            return Ok(());
+        },
+    };
+
+    ctx.defer().await;
+
+    let mut handler = handler_lock.lock().await;
+    match handler.queue().pause() {
+        Ok(_) => {}
+        Err(_) => {
+            ctx.send(CreateReply {
+                content: Some("The current track is already paused!".to_owned()),
+                ..Default::default()
+            }).await?;
+            return Ok(());
+        }
+    }
+
     ctx.send(CreateReply {
-        content: Some("Pong!".to_owned()),
+        content: Some("Current track has been paused!".to_owned()),
         ..Default::default()
     }).await?;
     Ok(())

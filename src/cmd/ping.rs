@@ -4,10 +4,9 @@ use poise::CreateReply;
 #[poise::command(slash_command, prefix_command)]
 ///Replies with pong 🏓
 pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
-    let reply = CreateReply {
+    ctx.send(CreateReply {
         content: Some("Pong 🏓".to_owned()),
         ..Default::default()
-    };
-    ctx.send(reply).await?;
+    }).await?;
     Ok(())
 }
