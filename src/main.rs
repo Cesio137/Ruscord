@@ -18,7 +18,7 @@ impl TypeMapKey for HttpKey {
 }
 
 fn get_intents() -> GatewayIntents {
-    GatewayIntents::all()
+    GatewayIntents::all() | GatewayIntents::GUILD_VOICE_STATES
 }
 
 async fn build_framework() -> poise::Framework<Data, Error> {
