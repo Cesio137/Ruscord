@@ -6,6 +6,8 @@ use songbird::{
     input::YoutubeDl,
     TrackEvent,
 };
+use songbird::tracks::TrackHandle;
+use tracing::error;
 use url::Url;
 
 #[poise::command(slash_command, subcommands("add", "pause", "resume", "skip", "stop", "queue"))]
@@ -166,14 +168,17 @@ pub async fn pause(ctx: Context<'_>) -> Result<(), Error> {
 
     ctx.defer().await;
 
-    let mut handler = handler_lock.lock().await;
+    let handler = handler_lock.lock().await;
+    if handler.queue().is_empty() {
+        ctx.say("There are no songs playing").await?;
+        return Ok(());
+    }
+
     match handler.queue().pause() {
-        Ok(_) => {}
-        Err(_) => {
-            ctx.send(CreateReply {
-                content: Some("The current track is already paused!".to_owned()),
-                ..Default::default()
-            }).await?;
+        Ok(_) => {},
+        Err(why) => {
+            ctx.say("Can not pause the song!").await?;
+            error!("Error: {:?}", why);
             return Ok(());
         }
     }

@@ -4,11 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-serenity = "0.12.2"
+serenity = {version = "0.12.2", features = ["framework", "standard_framework", "voice"]}
 tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
 dotenvy = "0.15.7"
 poise = "0.6.1"
-songbird = { version= "0.4.3", features = ["builtin-queue"] }
+songbird = { version= "0.4.3", features = ["builtin-queue", "serenity"] }
 symphonia = { version= "0.5.4", features = ["aac", "mp3", "isomp4", "alac"] }
 url = "2.5.2"
 reqwest = "0.11.27"
